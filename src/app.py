@@ -73,7 +73,7 @@ data = []
 
 for dir_name in list_dirs(root_path):
     dir_path = root_path + "/" + dir_name
-    sample_meta = meta.loc[meta["sample_id"]==int(dir_name),:]
+    sample_meta = meta.loc[meta["sample_id"]==dir_name,:]
     sample_data = read_data(dir_path)
     enreach_data(sample_data, sample_meta)
     data.append(sample_data)

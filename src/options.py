@@ -14,11 +14,14 @@ class Options:
             self, 
             qc: bool = True,
             sparse: bool = True,
-            pp: str = 'default' | 'seurat' | 'zheng17',
+            # pp: str = 'default' | 'seurat' | 'zheng17',
+            pp: str = 'default',
             pca: bool = True,
             neighbors: bool = True,
-            clustering: str = 'louvain'|'leiden',
-            embedding: list = ['umap', 'tsne']):
+            # clustering: str = 'louvain'|'leiden',
+            clustering: str = 'louvain',
+            # embedding: list = ['umap', 'tsne']):
+            embedding: list = ['umap']):
         self.qc = qc
         self.sparse = sparse
         self.pp = pp

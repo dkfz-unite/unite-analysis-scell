@@ -7,7 +7,6 @@ RUN python -m pip install -r requirements.txt
 
 FROM install AS final
 COPY ./app /app
-
 WORKDIR /app
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 ENV ASPNETCORE_hostBuilder:reloadConfigOnChange=false

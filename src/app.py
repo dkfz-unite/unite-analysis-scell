@@ -151,4 +151,11 @@ if opt.embedding:
 print("Saving results")
 adata.write(root_path + "/data.h5ad")
 
+# Save metadata
+data = {
+    "cells_number": adata.n_obs,
+    "genes_number": adata.n_vars
+}
+os.write(root_path + "/data.json", json.dumps(data))
+
 print("Done")

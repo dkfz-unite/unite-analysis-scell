@@ -12,7 +12,7 @@ import json
 class Options:
     def __init__(
             self, 
-            qc: bool = True,
+            qc: bool = False,
             sparse: bool = True,
             # pp: str = 'default' | 'seurat' | 'zheng17',
             pp: str = 'default',

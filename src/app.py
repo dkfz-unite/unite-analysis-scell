@@ -133,29 +133,31 @@ if opt.clustering:
 
 # Embedding
 if opt.embedding:
-    # if len(unique(adata.obs["a.cluster"].values)) < 10:
-    #     palette = "tab10"
-    # else:
-    #     palette = "tab20"
+    if len(unique(adata.obs["cluster"].values)) < 10:
+        palette = "tab10"
+    else:
+        palette = "tab20"
 
     if "umap" in opt.embedding:
         print("Creating UMAP embedding")
         scanpy.tl.umap(adata)
-        # scanpy.pl.umap(adata, color="cluster", palette=palette, show=False, save="umap.svg")
+        scanpy.pl.umap(adata, color="cluster", palette=palette, show=False, save=root_path + "/umap.svg")
     if "tsne" in opt.embedding:
         print("Creating t-SNE embedding")
         scanpy.tl.tsne(adata)
-        # scanpy.pl.tsne(adata, color="cluster", palette=palette, show=False, save="tsne.svg")
+        scanpy.pl.tsne(adata, color="cluster", palette=palette, show=False, save=root_path + "/tsne.svg")
 
-# Save results
+# Save result data
 print("Saving results")
-adata.write(root_path + "/data.h5ad")
+adata.write(root_path + "/result.h5ad")
 
-# Save metadata
+# Save result metadata
 data = {
     "cells_number": adata.n_obs,
     "genes_number": adata.n_vars
 }
-os.write(root_path + "/data.json", json.dumps(data))
+
+with open(root_path + "/result.json", "w") as file:
+    json.dump(data, file)
 
 print("Done")

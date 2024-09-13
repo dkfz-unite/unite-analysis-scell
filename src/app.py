@@ -70,8 +70,9 @@ def enreach_data(data: anndata.AnnData, meta: pandas.DataFrame):
 opt = read_options(root_path)
 meta = read_meta(root_path)
 data = []
+dirs = list_dirs(root_path)
 
-for dir_name in list_dirs(root_path):
+for dir_name in dirs:
     dir_path = root_path + "/" + dir_name
     sample_meta = meta.loc[meta["sample_id"]==dir_name,:]
     sample_data = read_data(dir_path)
@@ -141,15 +142,15 @@ if opt.embedding:
     if "umap" in opt.embedding:
         print("Creating UMAP embedding")
         scanpy.tl.umap(adata)
-        scanpy.pl.umap(adata, color="cluster", palette=palette, show=False, save=root_path + "/umap.svg")
+        # scanpy.pl.umap(adata, color="cluster", palette=palette, show=False, save="umap.svg")
     if "tsne" in opt.embedding:
         print("Creating t-SNE embedding")
         scanpy.tl.tsne(adata)
-        scanpy.pl.tsne(adata, color="cluster", palette=palette, show=False, save=root_path + "/tsne.svg")
+        # scanpy.pl.tsne(adata, color="cluster", palette=palette, show=False, save="tsne.svg")
 
 # Save result data
 print("Saving results")
-adata.write(root_path + "/result.h5ad")
+adata.write(root_path + "/result.data.h5ad")
 
 # Save result metadata
 data = {
@@ -157,7 +158,12 @@ data = {
     "genes_number": adata.n_vars
 }
 
-with open(root_path + "/result.json", "w") as file:
+with open(root_path + "/result.meta.json", "w") as file:
     json.dump(data, file)
+
+# Cleaning up the data
+for dir_name in dirs:
+    dir_path = root_path + "/" + dir_name
+    os.system("rm -r " + dir_path)
 
 print("Done")

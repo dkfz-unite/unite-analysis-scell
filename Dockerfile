@@ -1,12 +1,17 @@
 FROM python:3.10 AS base
 
 FROM base AS install
-COPY ./src /src
+COPY ./src/requirements.txt /src/requirements.txt
 WORKDIR /src
 RUN python -m pip install -r requirements.txt
 
-FROM install AS final
+FROM install AS build
+COPY ./src /src
 COPY ./app /app
+
+FROM build AS final
+COPY --from=build /src /src
+COPY --from=build /app /app
 WORKDIR /app
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 ENV ASPNETCORE_hostBuilder:reloadConfigOnChange=false

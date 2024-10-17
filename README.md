@@ -18,13 +18,13 @@ To configure the application, change environment variables as required in [comma
 ### Docker Compose
 The easiest way to install the application is to use docker-compose:
 - Environment configuration and installation scripts: https://github.com/dkfz-unite/unite-environment
-- Single cell RNA analysis service configuration and installation scripts: https://github.com/dkfz-unite/unite-environment/tree/main/applications/unite-analysis-rnasc
+- Single cell RNA analysis service configuration and installation scripts: https://github.com/dkfz-unite/unite-environment/tree/main/applications/unite-analysis-scell
 
 ### Docker
 [Dockerfile](Dockerfile) is used to build an image of the application.
 To build an image run the following command:
 ```
-docker build -t unite.analysis.rnasc:latest .
+docker build -t unite.analysis.scell:latest .
 ```
 
 All application components should run in the same docker network.
@@ -36,15 +36,15 @@ docker network create unite
 To run application in docker run the following command:
 ```bash
 docker run \
---name unite.analysis.rnasc \
+--name unite.analysis.scell \
 --restart unless-stopped \
 --net unite \
---net-alias rnasc.analysis.unite.net \
+--net-alias scell.analysis.unite.net \
 -p 127.0.0.1:5302:80 \
 -e ASPNETCORE_ENVIRONMENT=Release \
 -v ./data:/mnt/data:rw \
 -d \
-unite.analysis.rnasc:latest
+unite.analysis.scell:latest
 ```
 
 

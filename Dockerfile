@@ -1,4 +1,4 @@
-FROM python:3.10 AS base
+FROM python:3.10-slim AS base
 
 FROM base AS install
 COPY ./src/requirements.txt /src/requirements.txt

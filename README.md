@@ -1,7 +1,7 @@
 # Unite Single RNA Cell RNA Analysis Service
 
 ## General
-Single cell RNA analysis service wrapperd with web API.
+Single cell RNA analysis service wrapperd with web API. 
 
 
 ## Configuration

@@ -103,8 +103,8 @@ elif opt.pp == "zheng17":
     scanpy.pp.recipe_zheng17(adata)
 else:
     print("Running default preprocessing")
-    scanpy.pp.filter_cells(adata, min_genes=5)
-    scanpy.pp.filter_genes(adata, min_cells=25)
+    scanpy.pp.filter_cells(adata, min_genes=opt.genes)
+    scanpy.pp.filter_genes(adata, min_cells=opt.cells)
     if opt.sparse:
         scanpy.pp.scale(adata, zero_center=False)
     else:

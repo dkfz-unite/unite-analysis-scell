@@ -2,6 +2,8 @@
 # qc: bool
 # sparce: bool
 # pp: str (default, 'seurat', 'zheng17')
+# genes: int - required for default pp - minimum number of genes expressed in a cell
+# cells: int - required for default pp - minimum number of cells with expressed gene
 # pca: bool - required for neighbors
 # neighbors: bool - required for clustering
 # clustering: ('louvain', 'leiden')
@@ -16,6 +18,8 @@ class Options:
             sparse: bool = True,
             # pp: str = 'default' | 'seurat' | 'zheng17',
             pp: str = 'default',
+            genes: int = 5,
+            cells: int = 25,
             pca: bool = True,
             neighbors: bool = True,
             # clustering: str = 'louvain'|'leiden',
@@ -25,6 +29,8 @@ class Options:
         self.qc = qc
         self.sparse = sparse
         self.pp = pp
+        self.genes = genes
+        self.cells = cells
         self.pca = pca
         self.neighbors = neighbors
         self.clustering = clustering

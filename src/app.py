@@ -4,6 +4,7 @@ from numpy import ndarray, unique
 import json
 import pandas
 import scanpy
+import celltypist
 import os
 import sys
 import options
@@ -105,10 +106,20 @@ else:
     print("Running default preprocessing")
     scanpy.pp.filter_cells(adata, min_genes=opt.genes)
     scanpy.pp.filter_genes(adata, min_cells=opt.cells)
-    if opt.sparse:
-        scanpy.pp.scale(adata, zero_center=False)
-    else:
-        scanpy.pp.scale(adata)
+    scanpy.pp.normalize_total(adata, target_sum=1e4)
+    scanpy.pp.log1p(adata)
+
+# Cell type annotation
+if opt.annotate:
+    print("Annotating cell types")
+    predictions = celltypist.annotate(adata, model=opt.model)
+    adata.obs["cell_type"] = predictions["cell_type"]
+
+# Scaling the data
+if opt.sparse:
+    scanpy.pp.scale(adata, zero_center=False)
+else:
+    scanpy.pp.scale(adata)
 
 # Principal Component Analysis (PCA)
 if opt.pca:

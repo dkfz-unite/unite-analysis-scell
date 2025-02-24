@@ -22,7 +22,7 @@ class Options:
             pp: str = 'default',
             genes: int = 5,
             cells: int = 25,
-            annotate: bool = False,
+            meta: bool = False,
             model: str = None,
             pca: bool = True,
             neighbors: bool = True,
@@ -35,7 +35,7 @@ class Options:
         self.pp = pp
         self.genes = genes
         self.cells = cells
-        self.annotate = annotate
+        self.meta = meta
         self.model = model
         self.pca = pca
         self.neighbors = neighbors

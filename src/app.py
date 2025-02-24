@@ -44,15 +44,24 @@ def read_options(dir_path: str):
         dat = json.load(file)
         opt = options.Options(**dat)
         return opt
+    
+
+def read_annotations(dir_path: str):
+    file_path = dir_path + "/annotations.tsv"
+
+    if not os.path.exists(file_path):
+        raise Exception("annotations.tsv not found")
+    
+    return pandas.read_csv(file_path, sep = "\t")
 
 
-def read_meta(dir_path: str):
+def read_metadata(dir_path: str):
     file_path = dir_path + "/metadata.tsv"
 
     if not os.path.exists(file_path):
         raise Exception("metadata.tsv not found")
     
-    return pandas.read_csv(file_path, sep="\t")    
+    return pandas.read_csv(file_path, sep = "\t")    
 
 
 def read_data(dir_path: str):
@@ -69,25 +78,37 @@ def enreach_data(data: anndata.AnnData, meta: pandas.DataFrame):
 
 
 opt = read_options(root_path)
-meta = read_meta(root_path)
+meta = read_metadata(root_path)
 data = []
 dirs = list_dirs(root_path)
 
 for dir_name in dirs:
     dir_path = root_path + "/" + dir_name
-    sample_meta = meta.loc[meta["sample_id"]==dir_name,:]
+    sample_meta = meta.loc[meta["sample_id"] == dir_name,:]
     sample_data = read_data(dir_path)
     enreach_data(sample_data, sample_meta)
     data.append(sample_data)
 
 adata = anndata.concat(data)
+
+has_cell_types = False
+
+# Adding custom annotations
+if opt.meta:
+    print("Adding custom annotations")
+    annotations = read_annotations(root_path)
+    for key in annotations.keys():
+        adata.obs[key] = annotations[key].values
+        if key == "cell_type":
+            has_cell_types = True
+
 adata.obs_names_make_unique()
 adata.var_names_make_unique()
 
 # Quality control (QC)
 if (opt.qc):
     print("Calculating QC metrics")
-    scanpy.pp.calculate_qc_metrics(adata, inplace=True)
+    scanpy.pp.calculate_qc_metrics(adata, inplace = True)
 
 # Sparse matrix
 if (opt.sparse):
@@ -97,37 +118,39 @@ if (opt.sparse):
 
 # Preprocessing (PP)
 if opt.pp == "seurat":
+    # Performs total normalization and log transformation, but not scaling
     print("Running Seurat preprocessing")
     scanpy.pp.recipe_seurat(adata)
 elif opt.pp == "zheng17":
+    # Performs total normalization, log transformation and scaling
     print("Running Zheng17 preprocessing")
     scanpy.pp.recipe_zheng17(adata)
 else:
     print("Running default preprocessing")
-    scanpy.pp.filter_cells(adata, min_genes=opt.genes)
-    scanpy.pp.filter_genes(adata, min_cells=opt.cells)
-    scanpy.pp.normalize_total(adata, target_sum=1e4)
+    scanpy.pp.filter_cells(adata, min_genes = opt.genes)
+    scanpy.pp.filter_genes(adata, min_cells = opt.cells)
+    scanpy.pp.normalize_total(adata, target_sum = 1e4)
     scanpy.pp.log1p(adata)
 
 # Cell type annotation
-if opt.annotate:
-    print("Annotating cell types")
-    predictions = celltypist.annotate(adata, model=opt.model)
-    adata.obs["cell_type"] = predictions["cell_type"]
+if opt.model is not None:
+    print("Predicting cell types")
+    celltypist.models.download_models(model = opt.model)
+    predictions = celltypist.annotate(adata, model = opt.model)
+    if has_cell_types:
+        adata.obs["cell_type_predicted"] = predictions.predicted_labels
+    else:
+        adata.obs["cell_type"] = predictions.predicted_labels
 
 # Scaling the data
-if opt.sparse:
-    scanpy.pp.scale(adata, zero_center=False)
-else:
-    scanpy.pp.scale(adata)
+if opt.pp != "seurat":
+    print("Scaling the data")
+    scanpy.pp.scale(adata, zero_center = not opt.sparse)
 
 # Principal Component Analysis (PCA)
 if opt.pca:
     print("Running PCA")
-    if opt.sparse:
-        scanpy.pp.pca(adata, svd_solver="arpack", zero_center=False)
-    else:
-        scanpy.pp.pca(adata, svd_solver="arpack")
+    scanpy.pp.pca(adata, svd_solver="arpack", zero_center = not opt.sparse)
 
 # Neighbors
 if opt.neighbors:
@@ -138,10 +161,10 @@ if opt.neighbors:
 if opt.clustering:
     if opt.clustering == "louvain":
         print("Running Louvain clustering")
-        scanpy.tl.louvain(adata, key_added="cluster")
+        scanpy.tl.louvain(adata, key_added = "cluster")
     elif opt.clustering == "leiden":
         print("Running Leiden clustering")
-        scanpy.tl.leiden(adata, key_added="cluster", flavor="igraph", n_iterations=2, directed=False)
+        scanpy.tl.leiden(adata, key_added = "cluster", flavor = "igraph", n_iterations = 2, directed = False)
 
 # Embedding
 if opt.embedding:

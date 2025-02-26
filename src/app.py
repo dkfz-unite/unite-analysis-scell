@@ -52,7 +52,7 @@ def read_annotations(dir_path: str):
     if not os.path.exists(file_path):
         raise Exception("annotations.tsv not found")
     
-    return pandas.read_csv(file_path, sep = "\t")
+    return pandas.read_csv(file_path, sep = "\t", index_col = 0)
 
 
 def read_metadata(dir_path: str):
@@ -97,10 +97,13 @@ has_cell_types = False
 if opt.meta:
     print("Adding custom annotations")
     annotations = read_annotations(root_path)
-    for key in annotations.keys():
-        adata.obs[key] = annotations[key].values
-        if key == "cell_type":
-            has_cell_types = True
+    annotations = annotations[~annotations.index.duplicated(keep='first')]
+    indices = annotations.index.intersection(adata.obs.index)
+    if (len(indices) > 0):
+        for column in annotations.columns:
+            adata.obs[column] = annotations.loc[indices, column]
+            if column == "cell_type":
+                has_cell_types = True
 
 adata.obs_names_make_unique()
 adata.var_names_make_unique()

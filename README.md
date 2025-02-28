@@ -60,6 +60,7 @@ Place samples data, metadata and processing options files to `{proc}` subdirecto
         ├── barcodes.tsv.gz
         └── matrix.mtx.gz
     ├── matadata.tsv
+    ├── annotations.tsv
     └── options.json 
 ```
 Where:
@@ -70,13 +71,25 @@ Where:
   sample-1  glioblastoma  Male  45
   sample-2  glioblastoma  Female  55
   sample-n  glioblastoma  Male  65
-  ```   
+  ```
+- `annotations.tsv` - cell level annotations file where first column is cell barcode (without suffixes or prefixes) and all other columns are cell level annotations (e.g. cell type):
+  ```tsv
+  cell	cell_type	feature
+  AAACCTGAGGTCGCTA	T_cell	CD3+
+  AAACCTGAGTGCGTGA	Macrophage	CD68+
+  AAACCTGCACCTCGGA	B_cell	CD19+
+  AAACCTGCATCGGCTA	T_cell	CD4+
+  ```
 - `options.json` - processing options file with the following structure:
   ```jsonc
   {
     "qc": true, // Calculate quality control metrix.
     "sparce": true, // Make data sparce (highly recommended to set to 'true').
     "pp": "default", // Preprocessing option: default|seurat|zheng17.
+    "genes": 5, // Minimum number of genes expressed in a cell.
+    "cells": 25, // Minimum number of cells with expressed gene.
+    "meta": false, // Where or not to include cell level custom annotations.
+    "model": null, // CellTypist annotation model name, for automatic cell type predictions (optional). 
     "pca": true, // Perform principal component analysis (required for neighbours calculation).
     "neighbours": true, // Perform neighbours calculation (required for clustering).
     "clustering": "louvain", // Clustering method: louvain|leiden.
